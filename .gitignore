@@ -1,129 +1,343 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+import pyttsx3 
+import speech_recognition as sr 
+import datetime
+import wikipedia 
+import pywhatkit
+import webbrowser
+import sys
+from requests import get
+import pyjokes
+import keyboard
+import random
 
-# C extensions
-*.so
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[0].id)
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
 
-# Translations
-*.mo
-*.pot
+def wishMe():
+    hour = int(datetime.datetime.now().hour)
+    if hour>=0 and hour<12:
+        speak("Good Morning!")
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+    elif hour>=12 and hour<18:
+        speak("Good Afternoon!")   
 
-# Flask stuff:
-instance/
-.webassets-cache
+    else:
+        speak("Good Evening!")  
 
-# Scrapy stuff:
-.scrapy
+    speak("I am alex Sir")
+    speak("Please tell me how may I help you")       
 
-# Sphinx documentation
-docs/_build/
+def takeCommand():
+    #It takes microphone input from the user and returns string output
 
-# PyBuilder
-target/
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        r.pause_threshold = 0.5
+        audio = r.listen(source)
 
-# Jupyter Notebook
-.ipynb_checkpoints
+    try:
+        print("Recognizing...")    
+        query = r.recognize_google(audio, language='en-in')
+        print("you said: ", query)
 
-# IPython
-profile_default/
-ipython_config.py
+    except Exception as e:   
+        print("Say that again please...")  
+        return "None"
+    return query
 
-# pyenv
-.python-version
+if __name__ == "__main__":
+    wishMe()
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
+    def YoutubeAuto():
+        speak("Whats Your Command ?")
+        comm = takeCommand()
+        if 'pause ' in comm or 'stop the video'in comm:
+            keyboard.press('space bar')
+        elif 'restart' in comm:
+            keyboard.press('0')
 
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
+        elif 'mute' in comm:
+            keyboard.press('m')
+    
+        elif 'skip' in comm:
+            keyboard.press('l')
 
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
+        elif 'back' in comm:
+            keyboard.press('j')
 
-# SageMath parsed files
-*.sage.py
+        elif 'full screen' in comm:
+            keyboard.press('f')
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+        elif 'film mode' in comm:
+            keyboard.press('t')
 
-# Spyder project settings
-.spyderproject
-.spyproject
+            speak("Done Sir")
 
-# Rope project settings
-.ropeproject
 
-# mkdocs documentation
-/site
+    def ChromeAuto():
+        speak("Chrome Automation started!")
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+        command = takeCommand()
 
-# Pyre type checker
-.pyre/
+        if 'close this tab' in command:
+            keyboard.press_and_release('ctrl + w')
+
+        elif 'open new tab' in command:
+            keyboard.press_and_release('ctrl + t')
+
+        elif 'open new window' in command:
+            keyboard.press_and_release('ctrl + n')
+
+        elif 'history' in command:
+            keyboard.press_and_release('ctrl +h')
+
+
+    while True:
+    
+        query = takeCommand().lower()
+
+        
+        if 'wikipedia' in query or 'tell me about' or 'who is'in query:
+            speak('Searching in Wikipedia...')
+            query = query.replace("alex","")
+            query = query.replace("wikipedia", "")
+            results = wikipedia.summary(query, sentences=2)
+            speak("According to Wikipedia")
+            print(results)
+            speak(results)
+
+        elif 'open youtube' in query:
+            speak('yes sir,wait a second')
+            query = query.replace("alex","")
+            webbrowser.open("https://www.youtube.com/")
+
+        elif 'remember that' in query :
+            query = query.replace("alex","")
+            speak("what should i remember sir")
+            rememberMessage = takeCommand()
+            speak("you said me to remember"+rememberMessage)
+            remember = open('alex_note.txt', 'w')
+            remember.write(rememberMessage)
+            remember.close()
+
+        elif 'do you remember anything' in query or 'what do you remember' in query:
+            query = query.replace("alex","")
+            remember = open('alex_note.txt', 'r')
+            speak("you said me to remember that" + remember.read())
+
+        elif 'youtube search' in query:
+            query = query.replace("alex","")
+            speak("OK sir , This Is What I found For Your Search!")
+            query = query.replace("alex","")
+            query = query.replace("youtube search","")
+            web = 'https://www.youtube.com/results?search_query=' + query
+            webbrowser.open(web)
+            speak("Done Sir!")
+
+        
+        elif 'open google' in query:
+            query = query.replace("alex","")
+            speak('opening google sir')
+            webbrowser.open("https://www.google.com")
+
+
+        elif 'google search' in query or 'seacrh in google' in query:
+            query = query.replace("alex","")
+            speak("This Is What I Found For Your Search Sir!")
+            query = query.replace("alex","")
+            query = query.replace("google search","")
+            pywhatkit.search(query)
+            speak("Done Sir!")
+
+        elif 'website' in query:
+            speak("Ok Sir , Launching.....")
+            query = query.replace("jarvis","")
+            query = query.replace("website","")
+            query = query.replace(" ","")
+            web1 = query.replace("open","")
+            web2 = 'https://www.' + web1 + '.com'
+            webbrowser.open(web2)
+            speak("Launched!")
+                
+        elif 'launch' in query:
+            speak("Tell Me The Name Of The Website!")
+            name = takeCommand()
+            web = 'https://www.' + name + '.com'
+            webbrowser.open(web)
+            speak("Done Sir!")
+
+        elif "weather" in query:
+            query = query.replace("alex","")
+            speak(" City name ")
+            print("City name : ")
+            city_name = takeCommand()
+            webbrowser.open('https://www.timeanddate.com/weather/india/' + city_name.lower())
+            speak("I will show you the weather at")
+            speak(city_name)
+
+
+        elif 'play' in query or 'music' in query:
+            query = query.replace("alex","")
+            song = query.replace('play', '')
+            speak('playing ' + song)
+            pywhatkit.playonyt(song)
+            
+
+        elif 'the time' in query:
+            query = query.replace("alex","")
+            strTime = datetime.datetime.now().strftime("%I:""%M:""%S")    
+            print(strTime)
+            speak(f"Sir, the time is {strTime}")
+            
+
+        elif "open Gmail" in query:
+            query = query.replace("alex","")
+            speak("yah i am trying")
+            webbrowser.open('https://www.gmail.com/')
+
+        elif 'my location' in query:
+            query = query.replace("alex","")
+            speak("Ok Sir , Wait A Second!")
+            webbrowser.open('https://www.google.com/search?q=current+location&rlz=1C1NDCM_enIN909IN909&oq=current+location&aqs=chrome..69i57.166j0j7&sourceid=chrome&ie=UTF-8')
+        
+
+        elif "where is" in query:
+            query = query.replace("alex","")
+            query = query.replace("where is", "")
+            location = query
+            speak('searching for')
+            speak(location)
+            webbrowser.open("https://www.google.com/maps/place/" + location + "")
+        
+
+        elif 'joke' in query:
+            query = query.replace("alex","")
+            get = pyjokes.get_joke()
+            print(get)
+            speak(get)
+            speak("do you like it sir")
+            feed = takeCommand()
+            if 'yes' in feed:
+                speak("thank you")
+            else:
+                speak("sorry sir")
+                speak("i don\'t have sense of humor") 
+
+        
+        elif 'repeat my word' in query:
+            query = query.replace("alex","")
+            speak("Speak Sir!")
+            jj = takeCommand()
+            speak(f"You Said : {jj}")
+
+        
+        elif "ip address" in query:
+            query = query.replace("alex","")
+            query = query.replace("alex","")               
+            ip = get('http://api.ipify.org').text
+            print(f"your IP address is {ip}")
+            speak(f"your IP address is {ip}")
+    
+        
+        elif 'pause' in query or 'stop the video' in query :
+            query = query.replace("alex","")
+            keyboard.press('space bar')
+
+        elif 'restart' in query:
+            query = query.replace("alex","")
+            keyboard.press('0')
+
+        elif 'mute' in query:
+            query = query.replace("alex","")
+            keyboard.press('m')
+
+        elif 'skip' in query:
+            query = query.replace("alex","")
+            keyboard.press('l')
+
+        elif 'back' in query:
+            query = query.replace("alex","")
+            keyboard.press('j')
+
+        elif 'full screen' in query:
+            query = query.replace("alex","")
+            keyboard.press('f')
+
+        elif 'film mode' in query:
+            query = query.replace("alex","")
+            keyboard.press('t')
+
+        elif 'youtube tool' in query:
+            query = query.replace("alex","")
+            YoutubeAuto()
+
+        
+        elif 'close the tab' in query:
+            query = query.replace("alex","")
+            keyboard.press_and_release('ctrl + w')
+
+        elif 'open new tab' in query:
+            query = query.replace("alex","")
+            keyboard.press_and_release('ctrl + t')
+
+        elif 'open new window' in query:
+            query = query.replace("alex","")
+            keyboard.press_and_release('ctrl + n')
+
+        elif 'history' in query:
+            query = query.replace("alex","")
+            keyboard.press_and_release('ctrl +h')
+
+        elif 'chrome automation' in query:
+            query = query.replace("alex","")
+            ChromeAuto()
+        
+        
+        
+        
+        elif 'thank you' in query:
+            query = query.replace("alex","")
+            speak('its my pleasure sir')
+            speak('anything else sir')
+
+        elif 'your name' in query:
+            query = query.replace("alex","")
+            speak("my name is alex sir")
+            speak( "i know you are not nikhil" ) 
+            speak( " may i know your name")
+            nameOf=takeCommand()
+            speak(f"nice to meet you {nameOf}")
+
+        elif "what\'s up" in query or 'how are you' in query:
+            query = query.replace("alex","")
+            stMsgs = ['Just doing my thing!','I Am Fine Sir!', 'I am fine!', 'Nice!', 'I am nice and full of energy']
+            speak(random.choice(stMsgs))
+
+        elif 'hello' in query:
+            query = query.replace("alex","")
+            speak("Hello Sir , I Am alex .")
+            speak("How May I Help You?")
+        
+        elif 'exit' in query or 'abort' in query or 'bye'in query or 'sleep'in query or 'go offline'in query:
+            query = query.replace("alex","")
+            speak("Thanks for giving me your time")
+            speak("have a good day sir")
+            exit()
+
+        elif "who made you" in query or "who created you" in query:
+            query = query.replace("alex","")
+            speak("I can say that very proudly that i am created by NIKhIL VASAM")
+
+
+
+        else:
+            speak('Please say the command again.')
